@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+
+  potholeguard:
+    build:
+      context: .               # raíz del proyecto
+      dockerfile: Dockerfile
+    container_name: potholeguard
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    volumes:
+      # Código para hot-reload en desarrollo
+      - .:/app
+      # Volumen persistente SOLO para las imágenes anotadas
+      - pothole_outputs:/app/app/storage/outputs
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: potholeguard_db
+    environment:
+      POSTGRES_USER:     ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB:       ${POSTGRES_DB:-potholeguard}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"          # ← puerto 5433 en host para no chocar con postgres local si lo tienes
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  pothole_outputs:             # volumen nombrado persistente para outputs
