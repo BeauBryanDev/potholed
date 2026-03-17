@@ -26,6 +26,7 @@ services:
     image: postgres:16-alpine
     container_name: potholeguard_db
     environment:
+      POSTGRES_HOST_AUTH_METHOD: md5
       POSTGRES_USER:     ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB:       ${POSTGRES_DB:-potholeguard}
@@ -34,7 +35,7 @@ services:
     ports:
       - "5433:5432"          # ← puerto 5433 en host para no chocar con postgres local si lo tienes
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test:  ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5

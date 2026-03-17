@@ -1,43 +1,51 @@
-from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 from app.core.config import settings
 
 
 class Base(DeclarativeBase):
+    
     pass
 
 
-# Crear el engine asíncrono
-engine: AsyncEngine = create_async_engine(
+engine = create_engine(
     settings.DATABASE_URL,
-    echo=settings.DB_ECHO,               # True en dev para ver queries en consola
-    future=True,
-    pool_pre_ping=True,                  # chequea conexiones antes de usarlas
-    pool_size=20,                        # ajusta según tu tráfico esperado
+    echo=settings.DB_ECHO,               # True en dev para ver queries
+    pool_pre_ping=True,
+    pool_size=20,
     max_overflow=10,
 )
 
 
-# Session factory asíncrona
-async_session = async_sessionmaker(
-    engine,
-    class_=AsyncSession,
-    expire_on_commit=False,              # recomendado para async
+# Session factory síncrona
+SessionLocal = sessionmaker(
+    autocommit=False,
     autoflush=False,
+    bind=engine,
 )
 
 
-# Dependencia principal para FastAPI (se inyecta en los endpoints)
-async def get_db() -> AsyncSession:
+# Dependencia principal para FastAPI (síncrona por ahora)
+def get_db():
     """
-    Dependencia para obtener una sesión de DB asíncrona.
-    Uso en routers: async def endpoint(db: AsyncSession = Depends(get_db))
+    Dependencia para obtener una sesión de DB.
+    Uso en routers: db: Session = Depends(get_db)
     """
-    async with async_session() as session:
-        yield session
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def init_db() -> None:
+    """
+    Lightweight initialization to ensure models are registered and DB is reachable.
+    """
+    # Import models to register mappers
+    from app import models  # noqa: F401
+
+    # Simple connection test
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))

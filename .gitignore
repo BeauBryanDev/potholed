@@ -218,3 +218,8 @@ pictures/
 # Ingore onnx model weights
 *.onnx
 
+
+# Ingore alembic.ini config file 
+
+alembic.ini
+

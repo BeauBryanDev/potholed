@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
@@ -16,10 +16,10 @@ class Street(Base):
     segment = Column(String(150), nullable=True)                            
     town_id = Column(Integer, ForeignKey("towns.id", ondelete="CASCADE"), nullable=False)
     
-    latitude_start = Column(float, nullable=True)
-    longitude_start = Column(float, nullable=True)
-    latitude_end = Column(float, nullable=True)
-    longitude_end = Column(float, nullable=True)
+    latitude_start = Column(Float, nullable=True)
+    longitude_start = Column(Float, nullable=True)
+    latitude_end = Column(Float, nullable=True)
+    longitude_end = Column(Float, nullable=True)
     
     
     created_at = Column(DateTime, nullable=False, server_default=func.now())
@@ -32,6 +32,7 @@ class Street(Base):
 
     # relationships street -> town 1:1
     town = relationship("Town", back_populates="streets")
+    images = relationship("Image", back_populates="street", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return (
