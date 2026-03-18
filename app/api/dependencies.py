@@ -43,15 +43,26 @@ def get_current_user(
     try:
         payload = decode_access_token(token)
         user_id_str: str | None = payload.get("sub")
+        
         if user_id_str is None:
+            
             raise credentials_exception
-        user_id = int(user_id_str)  # asumimos que sub es el ID numérico
+        
+        user_id = int(user_id_str) 
+        
     except (JWTError, ValueError):
-        raise credentials_exception
+        
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=AuthErrors.INVALID_TOKEN,
+        )
 
     user = get_user_by_id(db, user_id)
+    
     if user is None:
+        
         raise HTTPException(
+            
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=AuthErrors.USER_NOT_FOUND,
         )
@@ -62,18 +73,15 @@ def get_current_user(
 def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)]
 ) -> User:
-    """
-    Dependencia secundaria: asegura que el usuario esté activo.
-    
-    Úsala en endpoints que requieran usuario logueado y activo.
-    Ejemplo: current_user: User = Depends(get_current_active_user)
-    """
+
     if not current_user.is_active:
+        
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=AuthErrors.USER_INACTIVE,
             headers={"WWW-Authenticate": "Bearer"},
         )
+        
     return current_user
 
 
@@ -88,6 +96,7 @@ def get_current_admin_user(
         HTTPException: 403 Forbidden if the user is not admin.
     """
     if not current_user.is_admin:
+        
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required"
@@ -103,9 +112,11 @@ def require_active_user(
     Useful to prevent soft-deleted users from continuing to use existing tokens.
     """
     if not current_user.is_active:
+        
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=AuthErrors.USER_INACTIVE,
             headers={"WWW-Authenticate": "Bearer"},
         )
+        
     return current_user

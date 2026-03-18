@@ -1,16 +1,26 @@
-import logging
-import time
 
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.routers import auth, users, analytics, detections, inference
 from app import models  # noqa: F401
 
+import logging
+import time
+import os 
+
+
+OUTPUT_PATH = "app/storage/outputs"
+
+
 logger = logging.getLogger(__name__)
 _HEALTH_CACHE_TTL_SECONDS = 10
 _health_cache = {"ts": 0.0, "ok": False}
+
+if not os.path.exists(OUTPUT_PATH):
+    os.makedirs(OUTPUT_PATH)
 
 
 app = FastAPI(
@@ -19,6 +29,9 @@ app = FastAPI(
     description=settings.APP_DESCRIPTION,
     debug=settings.DEBUG,
 )
+
+app.mount("/outputs", StaticFiles(directory=OUTPUT_PATH), name="outputs")
+
 
 app.include_router(auth.router)
 app.include_router(users.router)
