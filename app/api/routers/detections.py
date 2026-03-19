@@ -1,12 +1,16 @@
-from typing import Annotated, List
+from datetime import datetime
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_db, get_current_active_user
+from app.models.detection import Detection
 from app.models.user import User
-from app.models.image import Image  
+from app.models.image import Image
+from app.schemas.detection import DetectionPredictResponse
 from app.services.inference_service import PotholeDetector
-from app.utils.image_utils import draw_potholes_and_save
+from app.utils.image_utils import draw_potholes_and_save, save_original_upload
 
 router = APIRouter(
     prefix="/detections",
@@ -15,7 +19,11 @@ router = APIRouter(
 
 detector = PotholeDetector(model_path="ml/pothole_model.onnx")
 
-@router.post("/predict", status_code=status.HTTP_201_CREATED)
+@router.post("/predict", 
+             response_model=DetectionPredictResponse, 
+             status_code=status.HTTP_201_CREATED
+             )
+
 async def predict_potholes(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -25,32 +33,75 @@ async def predict_potholes(
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="FIle must be an image")
 
-    # YOLO INFERECE 
+    # YOLO inference
     image_bytes = await file.read()
     detections, original_img = detector.predict(image_bytes)
+    
+    if original_img is None:
+        
+        raise HTTPException(status_code=400, detail="Invalid image content")
 
- 
+    _, original_path = save_original_upload(file.filename, image_bytes)
+    
     filename = draw_potholes_and_save(original_img, detections)
-
+    
+    annotated_path = f"app/storage/outputs/{filename}"
+    
+    height, width = original_img.shape[:2]
+    
+    confidence_avg = None
+    
+    if detections:
+        
+        confidence_avg = sum(item["confidence"] for item in detections) / len(detections)
 
     new_image_record = Image(
+        
+        original_filename=file.filename or filename,
+        original_path=original_path,
+        annotated_path=annotated_path,
         user_id=current_user.id,
-        filename=filename,
-        path=f"app/storage/outputs/{filename}",
-        total_detections=len(detections),
-        detections=detections
+        file_size_bytes=len(image_bytes),
+        width=width,
+        height=height,
+        processed_at=datetime.utcnow(),
+        is_processed=True,
     )
 
-    db.add(new_image_record)
-    db.commit()
-    db.refresh(new_image_record)
+    try:
+        db.add(new_image_record)
+        db.flush()
+
+        new_detection_record = Detection(
+            
+            image_id=new_image_record.id,
+            pothole_count=len(detections),
+            confidence_avg=confidence_avg,
+            detections_json=detections,
+            model_version="yolov8s-9k-onnx",
+            notes=f"Prediction generated for user {current_user.id}",
+        )
+        
+        db.add(new_detection_record)
+        db.commit()
+        db.refresh(new_image_record)
+        db.refresh(new_detection_record)
+        
+    except Exception:
+        
+        db.rollback()
+        
+        raise
+
 
 
     return {
+        "image_id": new_image_record.id,
+        "detection_id": new_detection_record.id,
         "message": "Detection saved",
         "image_url": f"http://localhost:8000/outputs/{filename}",
         "potholes_found": len(detections),
         "detections": detections,
-        "saved_as": filename
+        "saved_as": filename,
     }
- 
+

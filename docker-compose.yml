@@ -13,8 +13,8 @@ services:
     volumes:
       # Código para hot-reload en desarrollo
       - .:/app
-      # Volumen persistente SOLO para las imágenes anotadas
-      - pothole_outputs:/app/app/storage/outputs
+      # Bind mount para conservar y visualizar imágenes anotadas en el host
+      - ./app/storage/outputs:/app/app/storage/outputs
     env_file:
       - .env
     depends_on:
@@ -43,4 +43,3 @@ services:
 
 volumes:
   postgres_data:
-  pothole_outputs:             # volumen nombrado persistente para outputs

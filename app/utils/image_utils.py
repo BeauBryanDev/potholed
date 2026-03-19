@@ -1,14 +1,35 @@
-import cv2
 import os
 import uuid
 from datetime import datetime
+from pathlib import Path
+
+import cv2
 import numpy as np
 
 # Base directory for saving images
 OUTPUT_DIR = "app/storage/outputs"
+ORIGINAL_DIR = "app/storage/originals"
 
 # make sure the directory exists
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(ORIGINAL_DIR, exist_ok=True)
+
+
+def save_original_upload(filename: str | None, image_bytes: bytes) -> tuple[str, str]:
+    """
+    Persist the uploaded file and return the generated filename and relative path.
+    """
+    source_name = filename or "upload.jpg"
+    suffix = Path(source_name).suffix or ".jpg"
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    unique_id = str(uuid.uuid4())[:8]
+    stored_name = f"orig_{timestamp}_{unique_id}{suffix}"
+    filepath = os.path.join(ORIGINAL_DIR, stored_name)
+
+    with open(filepath, "wb") as f:
+        f.write(image_bytes)
+
+    return stored_name, filepath
 
 def draw_potholes_and_save(image: np.ndarray, detections: list) -> str:
     """
