@@ -4,12 +4,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_db, get_current_active_user
+from app.api.dependencies import get_db, get_current_active_user, get_current_admin_user
 from app.models.detection import Detection
 from app.models.user import User
 from app.models.image import Image
-from app.schemas.detection import DetectionPredictResponse
+from app.schemas.detection import DetectionPredictResponse, DetectionResponse
 from app.services.inference_service import PotholeDetector
+from app.services import detection_service, image_service
 from app.utils.image_utils import draw_potholes_and_save, save_original_upload
 
 router = APIRouter(
@@ -31,7 +32,7 @@ async def predict_potholes(
 ):
     # Validate file type
     if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="FIle must be an image")
+        raise HTTPException(status_code=400, detail="File must be an image")
 
     # YOLO inference
     image_bytes = await file.read()
@@ -104,4 +105,44 @@ async def predict_potholes(
         "detections": detections,
         "saved_as": filename,
     }
+
+
+@router.get("/", response_model=list[DetectionResponse])
+def list_detections(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_admin = Depends(get_current_admin_user)
+):
+    return detection_service.get_detections(db, skip=skip, limit=limit)
+
+
+@router.get("/{detection_id}", response_model=DetectionResponse)
+def get_detection(
+    detection_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_active_user)
+):
+    db_det = detection_service.get_detection(db, detection_id=detection_id)
+    if not db_det:
+        raise HTTPException(status_code=404, detail="Detection not found")
+        
+    # Check if the associated image belongs to the user or if user is admin
+    db_image = image_service.get_image(db, image_id=db_det.image_id)
+    if not current_user.is_admin and db_image.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to see this detection")
+        
+    return db_det
+
+
+@router.delete("/{detection_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_detection(
+    detection_id: int,
+    db: Session = Depends(get_db),
+    current_admin = Depends(get_current_admin_user)
+):
+    success = detection_service.delete_detection(db, detection_id=detection_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Detection not found")
+    return None
 

@@ -10,8 +10,8 @@ class PotholeDetector:
         self.input_name = self.session.get_inputs()[0].name
         self.output_name = self.session.get_outputs()[0].name
         self.conf_threshold = 0.4
-        self.iou_threshold = 0.45
-
+        self.iou_threshold = 0.32
+ 
     def predict(self, image_bytes: bytes):
         # Pre-processing 
         # Convert into numpy array

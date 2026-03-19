@@ -14,7 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.utils.image_utils import OUTPUT_DIR, draw_potholes_and_save
+from app.utils.image_utils import OUTPUT_DIR, draw_potholes_and_save2
 
 
 def login(base_url: str, username: str, password: str) -> str:
@@ -64,7 +64,7 @@ def save_local_postprocessed_image(image_path: Path, detections: list[dict]) -> 
         
         raise RuntimeError(f"Unable to decode image: {image_path}")
     
-    generated_name = draw_potholes_and_save(image, detections)
+    generated_name = draw_potholes_and_save2(image, detections)
     source_path = os.path.join(OUTPUT_DIR, generated_name)
     overlay_name = f"test_overlay_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{str(uuid.uuid4())[:8]}.jpg"
     target_path = os.path.join(OUTPUT_DIR, overlay_name)

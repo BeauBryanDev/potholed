@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.api.routers import auth, users, analytics, detections, inference
+from app.api.routers import auth, users, analytics, detections, inference, towns, streets, images
 from app import models  # noqa: F401
 
 import logging
@@ -38,6 +38,9 @@ app.include_router(users.router)
 app.include_router(analytics.router)
 app.include_router(detections.router)
 app.include_router(inference.router)
+app.include_router(towns.router)
+app.include_router(streets.router)
+app.include_router(images.router)
 
 
 @app.on_event("startup")
