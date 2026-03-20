@@ -223,3 +223,6 @@ pictures/
 
 alembic.ini
 
+# Ingore docker bind volumnes
+app/storage/
+

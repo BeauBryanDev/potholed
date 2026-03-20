@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class DetectionBox(BaseModel):
+    
     box: list[int] = Field(..., min_length=4, max_length=4)
     confidence: float
     class_name: str = Field(..., alias="class")
@@ -14,6 +15,7 @@ class DetectionBox(BaseModel):
 
 
 class DetectionBase(BaseModel):
+
     model_config = ConfigDict(protected_namespaces=())
 
     image_id: int

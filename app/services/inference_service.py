@@ -1,4 +1,5 @@
 import cv2
+import time 
 import numpy as np
 import onnxruntime as ort
 from fastapi import UploadFile
@@ -25,10 +26,15 @@ class PotholeDetector:
         input_img = input_img.transpose(2, 0, 1)  # HWC a CHW
         input_img = np.expand_dims(input_img, axis=0)  # CHW a NCHW
 
-        # 3. Inferencia
+        # 3. Inference
+        start_inference = time.time()
         outputs = self.session.run([self.output_name], {self.input_name: input_img})
         predictions = np.squeeze(outputs[0])  # De [1, 84, 8400] a [84, 8400]
         predictions = predictions.T # Transponer a [8400, 84]
+        end_inference = time.time()
+        inference_time = end_inference - start_inference
+
+        inference_time_ms = inference_time * 1000
 
         # 4. Post-procesamiento (Filtrado y NMS)
         boxes = []
@@ -60,7 +66,7 @@ class PotholeDetector:
                     "class": "pothole"
                 })
         
-        return results, img
+        return results, img, inference_time_ms
 
 
 

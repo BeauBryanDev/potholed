@@ -36,7 +36,7 @@ async def predict_potholes(
 
     # YOLO inference
     image_bytes = await file.read()
-    detections, original_img = detector.predict(image_bytes)
+    detections, original_img, inference_time_ms  = detector.predict(image_bytes)
     
     if original_img is None:
         
@@ -66,6 +66,7 @@ async def predict_potholes(
         width=width,
         height=height,
         processed_at=datetime.utcnow(),
+        inference_time_ms=inference_time_ms,
         is_processed=True,
     )
 
