@@ -1,14 +1,15 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+from datetime import datetime, timedelta 
+
 from app.models.town import Town
 from app.models.street import Street
 from app.models.image import Image
 from app.models.detection import Detection
-
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-
+from app.models.user import User
 
 
 class AnalyticsService:
@@ -160,4 +161,49 @@ class AnalyticsService:
             distribution[row.severity] = int(row.count)
             
         return distribution
+    
+    
+    @staticmethod
+    def get_last_week_potholes(db: Session):
+        """
+        Obtiene el conteo total de baches detectados en los últimos 7 días.
+        """
+        one_week_ago = datetime.utcnow() - timedelta(days=7)
+        
+        count = db.query(
+            func.sum(Detection.pothole_count)
+        ).filter(
+            Detection.detected_at >= one_week_ago
+        ).scalar()
+        
+        return {
+            "since": one_week_ago.date(),
+            "total_potholes_last_week": int(count or 0)
+        }
+        
+    
+    
+    def get_user_activity(self, db: Session):
+        
+        results = db.query(
+            User.id.label("user_id"),
+            User.username.label("username"),
+            func.count(Image.id).label("total_images"),
+            func.sum(Detection.pothole_count).label("total_potholes")
+        ).select_from(User) \
+         .join(Image, User.id == Image.user_id) \
+         .join(Detection, Image.id == Detection.image_id) \
+         .group_by(User.id) \
+         .order_by(desc("total_potholes")) \
+         .all()
+         
+        return [
+            {
+                "user_id": r.user_id,
+                "username": r.username,
+                "total_images": int(r.total_images),
+                "total_potholes": int(r.total_potholes)
+            }
+            for r in results
+        ]       
 

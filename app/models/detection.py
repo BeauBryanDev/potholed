@@ -8,6 +8,7 @@ from app.core.database import Base
 
 
 class Detection(Base):
+    
     __tablename__ = "detections"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -17,13 +18,14 @@ class Detection(Base):
     pothole_count = Column(Integer, nullable=False, default=0)
     confidence_avg = Column(Float, nullable=True)                  # Average confidence of all bboxes
     
-    # Opcional: Save JSON with bboxes and classes
-    # Ej: [{"bbox": [x,y,w,h], "conf": 0.92, "class": "pothole"}, ...]
     detections_json = Column(JSON, nullable=True)
     
     model_version = Column(String(50), nullable=False, default="yolov8s-9k-onnx")  
     inference_time_ms = Column(Float, nullable=True)                
-    notes = Column(String(255), nullable=True)                      
+    notes = Column(String(255), nullable=True)        
+    
+    estimated_lat = Column(Float, nullable=True)
+    estimated_lon = Column(Float, nullable=True)
     
     detected_at = Column(DateTime, nullable=False, server_default=func.now())
     created_at = Column(DateTime, nullable=False, server_default=func.now())

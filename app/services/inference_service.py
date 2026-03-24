@@ -20,7 +20,6 @@ class PotholeDetector:
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         h, w = img.shape[:2]
 
-        # YOLOv8 necesita 640x640, normalizado y formato NCHW
         input_img = cv2.resize(img, (640, 640))
         input_img = input_img.astype(np.float32) / 255.0
         input_img = input_img.transpose(2, 0, 1)  # HWC a CHW
@@ -35,8 +34,9 @@ class PotholeDetector:
         inference_time = end_inference - start_inference
 
         inference_time_ms = inference_time * 1000
-
-        # 4. Post-procesamiento (Filtrado y NMS)
+        print(f"Inferencia en {inference_time_ms:.2f} ms")
+        
+        # 4. Post-processing
         boxes = []
         confidences = []
 
@@ -67,6 +67,3 @@ class PotholeDetector:
                 })
         
         return results, img, inference_time_ms
-
-
-

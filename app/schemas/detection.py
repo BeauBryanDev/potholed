@@ -25,6 +25,8 @@ class DetectionBase(BaseModel):
     model_version: str
     inference_time_ms: float | None = None
     notes: str | None = None
+    estimated_lat: float | None = None
+    estimated_lon: float | None = None
 
 
 class DetectionCreate(DetectionBase):
@@ -48,4 +50,7 @@ class DetectionPredictResponse(BaseModel):
     image_url: str
     potholes_found: int = Field(ge=0)
     detections: list[DetectionBox]
+    estimated_lat: float | None = None
+    estimated_lon: float | None = None
+    inference_time_ms: float | None = None
     saved_as: str
