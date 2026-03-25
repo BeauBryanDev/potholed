@@ -1,6 +1,6 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
-// Base URL de tu servidor FastAPI
+// BASE URL from backend server (FastAPI)
 const API_URL = 'http://localhost:8000';
 
 const api = axios.create({
@@ -11,8 +11,7 @@ const api = axios.create({
 });
 
 /**
- * Interceptor de Solicitud (Request):
- * Inyecta el token JWT automáticamente en cada petición si existe en localStorage.
+ * Request Interceptor (Request):
  */
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -27,25 +26,21 @@ api.interceptors.request.use(
   }
 );
 
-/**
- * Interceptor de Respuesta (Response):
- * Maneja errores globales, como la expiración del token (401).
- */
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error) => {
     if (error.response) {
-      // Si el servidor responde con 401, limpiamos el token y redirigimos al login
+      // If the request is not authorized, remove the token and redirect to login page
       if (error.response.status === 401) {
         localStorage.removeItem('token');
         window.location.href = '/login';
       }
       
-      // Error detallado de FastAPI
+      
       const message = error.response.data?.detail || 'Error del servidor';
       console.error(`[API Error ${error.response.status}]: ${message}`);
     } else if (error.request) {
-      console.error('[API Error]: No hubo respuesta del servidor. Revisa la conexión.');
+      console.error('[API Error]:Not authorized');
     }
     
     return Promise.reject(error);
