@@ -1,63 +1,103 @@
-import { Activity, AlertTriangle, MapPin, ShieldAlert } from 'lucide-react';
+import React from 'react';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 
-function App() {
+import Layout from './components/Layout';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './hooks/useAuth';
+import ForgotPassword from './pages/ForgotPassword';
+import Login from './pages/Login';
+import Register from './pages/Register';
+
+
+const TempDashboard: React.FC = () => {
+  const { user, logout } = useAuth();
+
   return (
-    <div className="min-h-screen bg-cyber-black p-8 relative overflow-hidden">
-      {/* Scanline Effect */}
+    <div className="min-h-full bg-cyber-black flex flex-col items-center justify-center text-cyber-red font-mono relative overflow-hidden">
       <div className="scanline" />
-
-      {/* Header HUD */}
-      <header className="border-b border-cyber-red/30 pb-4 mb-8 flex justify-between items-center">
-        <div>
-          <h1 className="text-cyber-red text-2xl font-bold tracking-tighter uppercase italic">
-            Pothole Guard // System v1.0
-          </h1>
-          <p className="text-cyber-red-dim text-xs font-mono">Status: Scanning_Infrastructure...</p>
-        </div>
-        <div className="text-right">
-          <p className="text-gray-500 text-xs">Auth_User: BEAU_04</p>
-          <p className="text-green-500 text-xs">Network: Online</p>
-        </div>
-      </header>
-
-      {/* Main Dashboard Grid */}
-      <main className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Card 1 */}
-        <div className="border border-cyber-red/20 bg-cyber-gray/50 p-6 rounded-sm hover:border-cyber-red/50 transition-colors group">
-          <div className="flex items-center gap-4 mb-4">
-            <ShieldAlert className="text-cyber-red group-hover:animate-pulse" />
-            <h2 className="text-white text-sm uppercase tracking-widest">Total_Detections</h2>
-          </div>
-          <p className="text-4xl font-bold text-cyber-red">--</p>
-        </div>
-
-        {/* Card 2 */}
-        <div className="border border-cyber-red/20 bg-cyber-gray/50 p-6 rounded-sm">
-          <div className="flex items-center gap-4 mb-4">
-            <Activity className="text-cyber-red" />
-            <h2 className="text-white text-sm uppercase tracking-widest">System_Latency</h2>
-          </div>
-          <p className="text-4xl font-bold text-cyber-red">0ms</p>
-        </div>
-
-        {/* Card 3 */}
-        <div className="border border-cyber-red/20 bg-cyber-gray/50 p-6 rounded-sm">
-          <div className="flex items-center gap-4 mb-4">
-            <MapPin className="text-cyber-red" />
-            <h2 className="text-white text-sm uppercase tracking-widest">Active_Zones</h2>
-          </div>
-          <p className="text-4xl font-bold text-cyber-red">0</p>
-        </div>
-      </main>
-
-      {/* Footer Info */}
-      <footer className="absolute bottom-4 left-8 right-8 flex justify-between text-[10px] text-gray-600 font-mono uppercase tracking-widest">
-        <span>&gt; DB_Connected: PostgreSQL</span>
-        <span>&gt; AI_Engine: YOLOv8-ONNX</span>
-        <span>&gt; Lat_Long: 4.6097, -74.0817</span>
-      </footer>
+      <h1 className="text-4xl font-bold tracking-[0.2em] uppercase mb-4 shadow-neon-red">
+        HUD_DASHBOARD // ONLINE
+      </h1>
+      <p className="text-gray-400 tracking-widest mb-8">
+        Welcome_Agent: {user?.username}
+      </p>
+      <button
+        onClick={logout}
+        className="border border-cyber-red px-6 py-2 hover:bg-cyber-red hover:text-black transition-all uppercase tracking-widest"
+      >
+        Terminate_Session
+      </button>
     </div>
-  )
+  );
+};
+
+
+interface PlaceholderPageProps {
+  title: string;
+  subtitle: string;
 }
 
-export default App
+
+const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, subtitle }) => {
+  return (
+    <div className="min-h-full bg-cyber-black border border-cyber-red/20 p-8 font-mono text-cyber-red shadow-[0_0_20px_rgba(255,0,0,0.08)]">
+      <p className="text-xs uppercase tracking-[0.3em] text-cyber-red-dim mb-4">
+        Module_Standby
+      </p>
+      <h1 className="text-3xl font-bold uppercase tracking-[0.18em] mb-4">{title}</h1>
+      <p className="text-sm text-gray-400 tracking-widest">{subtitle}</p>
+    </div>
+  );
+};
+
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<TempDashboard />} />
+              <Route
+                path="/scanner"
+                element={<PlaceholderPage title="YOLO_Scanner" subtitle="Road image inference workspace will render here." />}
+              />
+              <Route
+                path="/map"
+                element={<PlaceholderPage title="Intel_Map" subtitle="Geo-visual analysis view will render here." />}
+              />
+              <Route
+                path="/registry"
+                element={<PlaceholderPage title="Data_Registry" subtitle="Road assets and metadata registry will render here." />}
+              />
+              <Route
+                path="/detections"
+                element={<PlaceholderPage title="Detections_Log" subtitle="Detection history and review tooling will render here." />}
+              />
+              <Route
+                path="/profile"
+                element={<PlaceholderPage title="User_Profile" subtitle="Authenticated user profile management will render here." />}
+              />
+              <Route
+                path="/admin"
+                element={<PlaceholderPage title="Admin_Console" subtitle="Administrative controls will render here." />}
+              />
+            </Route>
+          </Route>
+
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+};
+
+
+export default App;

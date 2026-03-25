@@ -40,7 +40,9 @@ api.interceptors.response.use(
       const message = error.response.data?.detail || 'Error del servidor';
       console.error(`[API Error ${error.response.status}]: ${message}`);
     } else if (error.request) {
-      console.error('[API Error]:Not authorized');
+      console.error('[API Error]: Network or CORS error. Backend response was not accessible from the browser.');
+    } else {
+      console.error(`[API Error]: ${error.message || 'Unexpected client error'}`);
     }
     
     return Promise.reject(error);
