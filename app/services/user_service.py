@@ -145,6 +145,7 @@ def update_user(
 
     db.commit()
     db.refresh(user)
+    
     return user
 
 
@@ -165,4 +166,5 @@ def delete_user(db: Session, user_id: int) -> bool:
 
     db.delete(user)
     db.commit()
+    
     return True

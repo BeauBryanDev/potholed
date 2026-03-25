@@ -3,6 +3,24 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "Computer Vision Web App to Detect potholes in the road",
+  "author": {
+
+    "name": "Bryan David Castano",
+    "email": "beau.bryan.186@gmail.com",
+    "username": "BeauBryanDev",
+    "url": "https://github.com/BeauBryanDev/potholed"
+
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url" : "git+https://github.com/BeauBryanDev/potholed.git"
+  },
+  "bugs": {
+    "url": "https://github.com/BeauBryanDev/potholed#issues"
+  },
+  "homepage": "https://github.com/BeauBryanDev/potholed#README",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
