@@ -3,6 +3,10 @@ import time
 import numpy as np
 import onnxruntime as ort
 from fastapi import UploadFile
+from sqlalchemy.orm import Session
+from app.models.image import Image
+from typing import Optional
+
 
 class PotholeDetector:
     def __init__(self, model_path: str):
@@ -67,3 +71,4 @@ class PotholeDetector:
                 })
         
         return results, img, inference_time_ms
+    

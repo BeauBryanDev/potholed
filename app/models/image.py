@@ -18,6 +18,7 @@ class Image(Base):
     
     user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     street_id = Column(Integer, ForeignKey("streets.id", ondelete="SET NULL"), nullable=True)
+    town_id = Column(Integer, ForeignKey("towns.id", ondelete="SET NULL"), nullable=True)
     
     # Metadata 
     file_size_bytes = Column(Integer, nullable=True)
@@ -38,6 +39,7 @@ class Image(Base):
     # relationships image -> user 1:1
     user = relationship("User", back_populates="images")
     street = relationship("Street", back_populates="images")
+    town = relationship("Town", back_populates="images")
     detections = relationship("Detection", back_populates="image", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
@@ -46,5 +48,6 @@ class Image(Base):
             f"original_filename='{self.original_filename}', "
             f"user_id={self.user_id}, "
             f"street_id={self.street_id}, "
+            f"town_id={self.town_id}, "
             f"is_processed={self.is_processed})>"
-        )
+        )    

@@ -1,43 +1,38 @@
-import React from 'react';
+import React , { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 
+import { AdminRoute } from './components/AdminRoute';
 import Layout from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
-import { useAuth } from './hooks/useAuth';
 import ForgotPassword from './pages/ForgotPassword';
 import Login from './pages/Login';
 import Register from './pages/Register';
+//import Dashboard from  './pages/Dashboard';
+//import YoloScanner from './pages/YoloScanner';
+//import IntelMap from './pages/IntelMap';
+import DataRegistry from './pages/DataRegistry';
+import DetectionLogs from './pages/DetectionLogs';
+import UserProfile from './pages/UserProfile';
+import AdminConsole from './pages/AdminConsole';  
 
 
-const TempDashboard: React.FC = () => {
-  const { user, logout } = useAuth();
 
-  return (
-    <div className="min-h-full bg-cyber-black flex flex-col items-center justify-center text-cyber-red font-mono relative overflow-hidden">
-      <div className="scanline" />
-      <h1 className="text-4xl font-bold tracking-[0.2em] uppercase mb-4 shadow-neon-red">
-        HUD_DASHBOARD // ONLINE
-      </h1>
-      <p className="text-gray-400 tracking-widest mb-8">
-        Welcome_Agent: {user?.username}
-      </p>
-      <button
-        onClick={logout}
-        className="border border-cyber-red px-6 py-2 hover:bg-cyber-red hover:text-black transition-all uppercase tracking-widest"
-      >
-        Terminate_Session
-      </button>
-    </div>
-  );
-};
-
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const IntelMap = lazy(() => import('./pages/IntelMap'));
+const YoloScanner = lazy(() => import('./pages/YoloScanner'));
 
 interface PlaceholderPageProps {
   title: string;
   subtitle: string;
 }
 
+const FallbackLoader = () => (
+  <div className="flex-1 flex flex-col items-center justify-center font-mono text-cyber-red bg-cyber-black min-h-screen">
+    <div className="scanline" />
+    <p className="animate-pulse tracking-widest uppercase">Downloading_Module...</p>
+  </div>
+);
 
 const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, subtitle }) => {
   return (
@@ -64,31 +59,18 @@ const App: React.FC = () => {
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<TempDashboard />} />
-              <Route
-                path="/scanner"
-                element={<PlaceholderPage title="YOLO_Scanner" subtitle="Road image inference workspace will render here." />}
-              />
-              <Route
-                path="/map"
-                element={<PlaceholderPage title="Intel_Map" subtitle="Geo-visual analysis view will render here." />}
-              />
-              <Route
-                path="/registry"
-                element={<PlaceholderPage title="Data_Registry" subtitle="Road assets and metadata registry will render here." />}
-              />
-              <Route
-                path="/detections"
-                element={<PlaceholderPage title="Detections_Log" subtitle="Detection history and review tooling will render here." />}
-              />
-              <Route
-                path="/profile"
-                element={<PlaceholderPage title="User_Profile" subtitle="Authenticated user profile management will render here." />}
-              />
-              <Route
-                path="/admin"
-                element={<PlaceholderPage title="Admin_Console" subtitle="Administrative controls will render here." />}
-              />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/scanner" element={<YoloScanner />} />
+              <Route path="/map" element={<IntelMap />} />
+              <Route path="/registry" element={<DataRegistry />} />
+              <Route  path="/detections" element={<DetectionLogs />} />
+              <Route path="/profile" element={<UserProfile />} />
+            </Route>
+
+            <Route element={<AdminRoute />}>
+              <Route element={<Layout />}>
+                <Route path="/admin" element={<AdminConsole />} />
+              </Route>
             </Route>
           </Route>
 

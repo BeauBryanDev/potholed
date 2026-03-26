@@ -45,6 +45,20 @@ export interface DetectionPredictResponse {
 }
 
 const detectionService = {
+
+  /**
+   * GET /detections/
+   * Fetches a list of detections. The backend automatically filters 
+   * based on the JWT token (Admin sees all, User sees own).
+   */
+  getDetections: async (skip: number = 0, limit: number = 100): Promise<any[]> => {
+    const response = await api.get<any[]>('/detections/', {
+      params: { skip, limit }
+    });
+    return response.data;
+  },
+
+
   /**
    * Uploads an image for pothole detection.
    * Uses multipart/form-data to send the file and location metadata.

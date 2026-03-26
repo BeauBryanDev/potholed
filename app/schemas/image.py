@@ -11,6 +11,7 @@ class ImageBase(BaseModel):
     
     user_id: Optional[int] = Field(None, description="ID of the user who uploaded the image")
     street_id: Optional[int] = Field(None, description="ID of the associated street (if provided)")
+    town_id: Optional[int] = Field(None, description="ID of the associated town (if provided)")
     
     file_size_bytes: Optional[int] = None
     width: Optional[int] = None

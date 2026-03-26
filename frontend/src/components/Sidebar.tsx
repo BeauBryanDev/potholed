@@ -14,7 +14,6 @@ const Sidebar: React.FC = () => {
     { path: '/registry', label: 'Data_Registry', icon: Database },
     { path: '/detections', label: 'Detections_Log', icon: Database },
     { path : '/profile', label: 'User_Profile', icon: Database },
-    { path: '/admin', label: 'Admin_Console', icon: Shield }, // Only visible to admins
   ];
 
   return (

@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.database import init_db
+from app.core.logging import setup_logging
 from app.api.routers import auth, users, analytics, detections, inference, towns, streets, images
 from app import models  # noqa: F401
 
@@ -15,6 +16,7 @@ import os
 
 OUTPUT_PATH = "app/storage/outputs"
 
+setup_logging(settings.LOG_LEVEL)
 
 logger = logging.getLogger(__name__)
 _HEALTH_CACHE_TTL_SECONDS = 10

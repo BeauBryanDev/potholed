@@ -1,6 +1,8 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import logging
 import os 
 
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -35,6 +37,6 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-print(f"DEBUG: DATABASE_URL de OS es: {os.getenv('DATABASE_URL')}")
-print(f"DEBUG: DATABASE_URL de SETTINGS es: {settings.DATABASE_URL}")
-print(f"DEBUG: DATABASE_URL de ENV es: {os.environ.get('DATABASE_URL')}")
+logger.debug("DATABASE_URL from os.getenv: %s", os.getenv("DATABASE_URL"))
+logger.debug("DATABASE_URL from settings: %s", settings.DATABASE_URL)
+logger.debug("DATABASE_URL from os.environ: %s", os.environ.get("DATABASE_URL"))

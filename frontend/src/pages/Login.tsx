@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Terminal, ShieldAlert, Lock, User as UserIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
   
   // Form state
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   const getLoginErrorMessage = (err: unknown): string => {
     if (axios.isAxiosError(err)) {
@@ -42,8 +50,7 @@ const Login: React.FC = () => {
     try {
       // FastAPI expects username, but your backend accepts email in this field too
       await login(username, password);
-      // Note: In a real app with react-router-dom, you would navigate to the dashboard here
-      // e.g., navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
       console.log('[Auth] Access Granted. JWT Stored.');
     } catch (err: unknown) {
       console.error('[Auth] Access Denied:', err);

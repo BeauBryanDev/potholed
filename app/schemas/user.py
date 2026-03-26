@@ -28,6 +28,7 @@ class UserResponse(BaseModel):
     country: Optional[str] = None
     address: Optional[str] = None
     is_active: bool
+    is_admin: bool
 
     class Config:
         from_attributes = True
@@ -35,7 +36,6 @@ class UserResponse(BaseModel):
 
 class UserAdminResponse(UserResponse):
     """Extended response for admins (includes admin fields and timestamps)."""
-    is_admin: bool
     created_at: datetime
     updated_at: datetime
 

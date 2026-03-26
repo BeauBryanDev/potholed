@@ -27,6 +27,7 @@ class Town(Base):
 
     # relationships town -> streets 1:n
     streets = relationship("Street", back_populates="town", cascade="all, delete-orphan")
+    images = relationship("Image", back_populates="town")
 
     def __repr__(self) -> str:
         return (

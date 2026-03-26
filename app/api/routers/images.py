@@ -62,6 +62,9 @@ def update_image(
         db_street = street_service.get_street(db, street_id=image_update.street_id)
         if not db_street:
              raise HTTPException(status_code=404, detail="Street not found")
+        image_data = image_update.model_dump(exclude_unset=True)
+        image_data["town_id"] = db_street.town_id
+        return image_service.update_image(db, image_id=image_id, image_data=image_data)
 
     return image_service.update_image(db, image_id=image_id, image_data=image_update.model_dump(exclude_unset=True))
 

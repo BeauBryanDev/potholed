@@ -1,10 +1,11 @@
+import logging
 from datetime import datetime , timezone
 from typing import Annotated , Optional
 
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status, Form , Request
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_db, get_current_active_user, get_current_admin_user
+from app.api.dependencies import get_db, get_current_active_user
 from app.models.detection import Detection
 from app.models.user import User
 from app.models.image import Image
@@ -19,6 +20,7 @@ router = APIRouter(
     tags=["detections"]
 )
 
+logger = logging.getLogger(__name__)
 detector = PotholeDetector(model_path="ml/pothole_model.onnx")
 
 @router.post("/predict", 
@@ -61,7 +63,13 @@ async def predict_potholes(
     segment_index=current_segment,
     total_segments=total_sub_segments
     )
-    print(f"DEBUG GEO: {est_lat}, {est_lon}")
+    logger.debug(
+        "Estimated detection location calculated: lat=%s lon=%s street_id=%s segment=%s",
+        est_lat,
+        est_lon,
+        street_id,
+        current_segment,
+    )
     
     # YOLO inference
     image_bytes = await file.read()
@@ -94,6 +102,7 @@ async def predict_potholes(
         original_path=original_path,
         annotated_path=annotated_path,
         user_id=current_user.id,
+        town_id=db_street.town_id if street_id else None,
         file_size_bytes=len(image_bytes),
         width=width,
         height=height,
@@ -123,10 +132,20 @@ async def predict_potholes(
         db.commit()
         db.refresh(new_image_record)
         db.refresh(new_detection_record)
+        logger.info(
+            "Detection persisted: detection_id=%s image_id=%s user_id=%s street_id=%s town_id=%s potholes=%s",
+            new_detection_record.id,
+            new_image_record.id,
+            current_user.id,
+            street_id,
+            new_image_record.town_id,
+            len(detections),
+        )
         
     except Exception as e:
         
         db.rollback()
+        logger.exception("Failed to save detection for user_id=%s street_id=%s", current_user.id, street_id)
         
         raise HTTPException(status_code=500, detail=f"Error saving detections: {str(e)}")   
 
@@ -151,9 +170,10 @@ def list_detections(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_admin = Depends(get_current_admin_user)
+    current_user: User = Depends(get_current_active_user),
 ):
-    return detection_service.get_detections(db, skip=skip, limit=limit)
+    user_id = None if current_user.is_admin else current_user.id
+    return detection_service.get_detections(db, skip=skip, limit=limit, user_id=user_id)
 
 
 @router.get("/{detection_id}", response_model=DetectionResponse)
@@ -178,7 +198,7 @@ def get_detection(
 def delete_detection(
     detection_id: int,
     db: Session = Depends(get_db),
-    current_admin = Depends(get_current_admin_user)
+    current_admin = Depends(get_current_active_user)
 ):
     success = detection_service.delete_detection(db, detection_id=detection_id)
     if not success:
@@ -190,17 +210,22 @@ def delete_detection(
 def get_street_potholes_geojson(
     street_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Exporta todos los baches de una calle específica en formato GeoJSON.
     Ideal para integrar con Leaflet o Google Maps.
     """
     # Buscamos todas las detecciones vinculadas a esa calle a través de las imágenes
-    detections = db.query(Detection).join(Image).filter(
+    query = db.query(Detection).join(Image).filter(
         Image.street_id == street_id,
         Detection.estimated_lat.isnot(None)
-    ).all()
+    )
+
+    if not current_user.is_admin:
+        query = query.filter(Image.user_id == current_user.id)
+
+    detections = query.all()
 
     # Construimos la estructura GeoJSON estándar
     features = []
@@ -235,17 +260,22 @@ def get_street_potholes_geojson(
 def get_town_potholes_geojson(
     town_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Exporta todos los baches de una ciudad específica en formato GeoJSON.
     Ideal para integrar con Leaflet o Google Maps.
     """
     # Buscamos todas las detecciones vinculadas a esa ciudad a través de las imágenes
-    detections = db.query(Detection).join(Image).filter(
+    query = db.query(Detection).join(Image).filter(
         Image.town_id == town_id,
         Detection.estimated_lat.isnot(None)
-    ).all()
+    )
+
+    if not current_user.is_admin:
+        query = query.filter(Image.user_id == current_user.id)
+
+    detections = query.all()
 
     # Construimos la estructura GeoJSON estándar
     features = []

@@ -5,17 +5,15 @@
   "type": "module",
   "description": "Computer Vision Web App to Detect potholes in the road",
   "author": {
-
     "name": "Bryan David Castano",
     "email": "beau.bryan.186@gmail.com",
     "username": "BeauBryanDev",
     "url": "https://github.com/BeauBryanDev/potholed"
-
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url" : "git+https://github.com/BeauBryanDev/potholed.git"
+    "url": "git+https://github.com/BeauBryanDev/potholed.git"
   },
   "bugs": {
     "url": "https://github.com/BeauBryanDev/potholed#issues"
@@ -28,20 +26,24 @@
   },
   "dependencies": {
     "axios": "^1.6.0",
+    "clsx": "^2.0.0",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.300.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.20.0",
     "recharts": "^2.10.0",
-    "clsx": "^2.0.0",
     "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.9.21",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
+    "react-dropzone": "^15.0.0",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2",
     "vite": "^5.0.0"
