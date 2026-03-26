@@ -3,6 +3,7 @@
 PotholeGuard is a full-stack computer vision platform for detecting potholes in road images. The backend exposes a FastAPI API for authentication, image inference, detections, analytics, and geospatial export. The frontend is a React + TypeScript dashboard for authentication, scanning, map views, registry management, and operational monitoring.
 
 The ML inference engine uses a fine-tuned YOLOv8 small model exported to ONNX and executed with `onnxruntime`. The project persists users, towns, streets, uploaded images, and detections in PostgreSQL.
+![potholeGuard_Icon](./frontend/public/cv_pothole_img.jpg)
 
 ## Overview
 
