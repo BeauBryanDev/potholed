@@ -58,7 +58,6 @@ const detectionService = {
     return response.data;
   },
 
-
   /**
    * Uploads an image for pothole detection.
    * Uses multipart/form-data to send the file and location metadata.

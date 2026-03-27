@@ -8,9 +8,9 @@ import { AuthProvider } from './context/AuthContext';
 import ForgotPassword from './pages/ForgotPassword';
 import Login from './pages/Login';
 import Register from './pages/Register';
-//import Dashboard from  './pages/Dashboard';
-//import YoloScanner from './pages/YoloScanner';
-//import IntelMap from './pages/IntelMap';
+import Dashboard from  './pages/Dashboard';
+import YoloScanner from './pages/YoloScanner';
+import IntelMap from './pages/IntelMap';
 import DataRegistry from './pages/DataRegistry';
 import DetectionLogs from './pages/DetectionLogs';
 import UserProfile from './pages/UserProfile';
@@ -18,9 +18,9 @@ import AdminConsole from './pages/AdminConsole';
 
 
 
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const IntelMap = lazy(() => import('./pages/IntelMap'));
-const YoloScanner = lazy(() => import('./pages/YoloScanner'));
+//const Dashboard = lazy(() => import('./pages/Dashboard'));
+//const IntelMap = lazy(() => import('./pages/IntelMap'));
+//const YoloScanner = lazy(() => import('./pages/YoloScanner'));
 
 interface PlaceholderPageProps {
   title: string;
@@ -58,7 +58,7 @@ const App: React.FC = () => {
 
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<Navigate to="/dashboard"  />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/scanner" element={<YoloScanner />} />
               <Route path="/map" element={<IntelMap />} />
