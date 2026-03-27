@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { User as UserIcon, Mail, Phone, MapPin, Globe, Shield, Edit3, Save, X, Activity, Terminal } from 'lucide-react';
+import { User as UserIcon, Mail, Phone, MapPin, Globe, Shield, Edit3, Save, X, Activity, Terminal, Crosshair, Zap } from 'lucide-react';
 import userService, { UserResponse, UserUpdate } from '../services/userService';
 import { useAuth } from '../hooks/useAuth';
+
+
 
 const UserProfile: React.FC = () => {
   const { user: authUser } = useAuth(); // Global auth state
   const [profile, setProfile] = useState<UserResponse | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [formData, setFormData] = useState<UserUpdate>({});
-  
+
   // Status states
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -53,13 +55,10 @@ const UserProfile: React.FC = () => {
     setSuccess(null);
 
     try {
-      // We use patchMe to only update the fields that are sent
       const updatedProfile = await userService.patchMe(formData);
       setProfile(updatedProfile);
       setIsEditing(false);
       setSuccess('DOSSIER_UPDATED // CHANGES_COMMITTED_TO_MAINFRAME');
-      
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       console.error('[Profile] Update Error:', err);
@@ -70,7 +69,6 @@ const UserProfile: React.FC = () => {
   };
 
   const cancelEdit = () => {
-    // Revert form data back to current profile state
     if (profile) {
       setFormData({
         username: profile.username,
@@ -90,8 +88,8 @@ const UserProfile: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center font-mono text-cyber-red h-full">
-        <Activity className="w-8 h-8 animate-spin mb-4" />
-        <p className="tracking-[0.2em] uppercase text-sm animate-pulse">Decrypting_Agent_File...</p>
+        <Activity className="w-16 h-16 animate-spin mb-6 text-cyber-neon" />
+        <p className="tracking-[0.6em] uppercase text-lg font-black animate-pulse">Decrypting_Agent_File...</p>
       </div>
     );
   }
@@ -99,168 +97,206 @@ const UserProfile: React.FC = () => {
   if (!profile) return null;
 
   return (
-    <div className="flex flex-col gap-6 font-mono text-gray-300 h-full max-w-4xl mx-auto">
-      
-      {/* Header */}
-      <div className="flex justify-between items-end border-b border-cyber-red/30 pb-4 shrink-0">
-        <div>
-          <h1 className="text-2xl font-bold text-cyber-red tracking-[0.2em] uppercase shadow-neon-red flex items-center">
-            <Shield className="mr-3 w-6 h-6" /> Agent_Dossier
-          </h1>
-          <p className="text-xs text-cyber-red-dim tracking-widest mt-1">
-            Clearance: {profile.is_admin ? 'LEVEL_9 (ADMIN)' : 'LEVEL_3 (OPERATOR)'} // Status: {profile.is_active ? 'ACTIVE' : 'SUSPENDED'}
-          </p>
-        </div>
-        
-        {!isEditing ? (
-          <button 
-            onClick={() => setIsEditing(true)}
-            className="flex items-center border border-cyber-red/50 text-cyber-red px-4 py-2 text-xs uppercase tracking-widest hover:bg-cyber-red hover:text-black transition-colors"
-          >
-            <Edit3 className="w-3 h-3 mr-2" /> Override_Data
-          </button>
-        ) : (
-          <div className="flex space-x-2">
-            <button 
-              onClick={cancelEdit}
-              disabled={isSaving}
-              className="flex items-center border border-gray-600 text-gray-400 px-4 py-2 text-xs uppercase tracking-widest hover:bg-gray-600 hover:text-white transition-colors"
-            >
-              <X className="w-3 h-3 mr-2" /> Abort
-            </button>
-            <button 
-              onClick={handleSave}
-              disabled={isSaving}
-              className="flex items-center border border-cyber-red text-cyber-red px-4 py-2 text-xs uppercase tracking-widest hover:bg-cyber-red hover:text-black transition-colors"
-            >
-              {isSaving ? <Activity className="w-3 h-3 mr-2 animate-spin" /> : <Save className="w-3 h-3 mr-2" />} 
-              Commit
-            </button>
+    <div className="flex flex-col gap-10 font-mono text-gray-300 h-full max-w-6xl mx-auto relative pb-12">
+      {/* Background HUD Decor */}
+      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(rgba(255,0,0,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,0,0,0.01)_1px,transparent_1px)] bg-[size:50px_50px] z-[-1]"></div>
+
+      {/* Top Identity HUD Header */}
+      <div className="flex flex-col md:flex-row gap-8 items-center border-b-2 border-cyber-red/40 pb-10 shrink-0 relative">
+        <div className="absolute -bottom-[2px] left-0 w-48 h-[2px] bg-cyber-red shadow-[0_0_10px_#ff0000]"></div>
+
+        {/* Profile Avatar / Brand Icon Frame */}
+        <div className="relative shrink-0 group">
+          <div className="absolute inset-0 bg-cyber-red animate-pulse opacity-10 rounded-none transform rotate-45 scale-75 blur-2xl"></div>
+          <div className="w-40 h-40 border-2 border-cyber-red relative overflow-hidden bg-cyber-gray/20 shadow-[0_0_20px_rgba(255,0,0,0.15)]">
+            {/* Corner markings */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyber-red"></div>
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyber-red"></div>
+
+            <img
+              src='../../publics/cv_pothole_img.jpg'
+              alt="Profile Icon"
+              className="w-full h-full object-cover grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-700"
+            />
+            <div className="absolute bottom-1 right-1 px-1 bg-cyber-red text-black text-[8px] font-black uppercase">SYNCED</div>
           </div>
-        )}
+        </div>
+
+        {/* Big Name & Meta Terminal */}
+        <div className="flex-1 text-center md:text-left space-y-4">
+          <div>
+            <p className="text-[10px] text-cyber-red-dim font-black tracking-[0.5em] uppercase mb-1 flex items-center justify-center md:justify-start">
+              <Shield className="w-3 h-3 mr-2 text-cyber-red" /> Authorized_Entity_Signal
+            </p>
+            <h1 className="text-5xl font-black text-cyber-red tracking-[0.1em] uppercase shadow-neon-red drop-shadow-[0_0_15px_rgba(255,0,0,0.6)]">
+              {profile.name || profile.username}
+            </h1>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-3">
+              <p className="text-lg font-black text-gray-100 tracking-widest uppercase flex items-center">
+                <MapPin className="w-5 h-5 mr-3 text-cyber-neon" /> {profile.city || 'UNDEFINED_SECTOR'}, {profile.country || 'NULL_GEO'}
+              </p>
+              <span className="px-3 py-1 bg-cyber-red/10 border border-cyber-red/30 text-[10px] font-black tracking-widest text-cyber-red uppercase">
+                Clearance: {profile.is_admin ? 'LVL_09_ADMIN' : 'LVL_03_OPERATIVE'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Protocol Controls */}
+        <div className="flex gap-4 self-center md:self-end">
+          {!isEditing ? (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="group relative overflow-hidden flex items-center border-2 border-cyber-red text-cyber-red px-8 py-3 text-xs font-black uppercase tracking-[0.3em] hover:bg-cyber-red hover:text-black transition-all shadow-neon-red active:scale-95"
+            >
+              <Edit3 className="w-4 h-4 mr-3 group-hover:rotate-12 transition-transform" /> Override_Dossier
+            </button>
+          ) : (
+            <div className="flex gap-4">
+              <button
+                onClick={cancelEdit}
+                disabled={isSaving}
+                className="flex items-center border-2 border-gray-600 text-gray-400 px-6 py-3 text-xs font-black uppercase tracking-[0.3em] hover:bg-gray-600 hover:text-white transition-all active:scale-95 disabled:opacity-30"
+              >
+                <X className="w-4 h-4 mr-3" /> Abort
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="group relative overflow-hidden flex items-center border-2 border-cyber-neon text-cyber-neon px-8 py-3 text-xs font-black uppercase tracking-[0.3em] hover:bg-cyber-neon hover:text-black transition-all shadow-[0_0_15px_rgba(0,255,185,0.3)] active:scale-95 disabled:opacity-30"
+              >
+                {isSaving ? <Activity className="w-4 h-4 mr-3 animate-spin" /> : <Save className="w-4 h-4 mr-3" />}
+                Commit_Data
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Notifications */}
-      {error && (
-        <div className="border-l-4 border-cyber-red bg-cyber-red/10 p-3 flex items-start">
-          <Terminal className="text-cyber-red w-4 h-4 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-cyber-red text-xs uppercase tracking-wider">{error}</p>
-        </div>
-      )}
-      
-      {success && (
-        <div className="border-l-4 border-cyber-neon bg-cyber-neon/10 p-3 flex items-start">
-          <Terminal className="text-cyber-neon w-4 h-4 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-cyber-neon text-xs uppercase tracking-wider">{success}</p>
+      {/* Dynamic System Feedback */}
+      {(error || success) && (
+        <div className={`border-2 p-5 flex items-start animate-alert-flash relative overflow-hidden ${error ? 'border-cyber-red/50 bg-cyber-red/5' : 'border-cyber-neon/50 bg-cyber-neon/5'}`}>
+          <div className={`absolute top-0 left-0 w-2 h-full ${error ? 'bg-cyber-red' : 'bg-cyber-neon'}`}></div>
+          <Terminal className={`${error ? 'text-cyber-red' : 'text-cyber-neon'} w-6 h-6 mr-4 flex-shrink-0`} />
+          <p className={`${error ? 'text-cyber-red' : 'text-cyber-neon'} text-xs uppercase font-black tracking-widest leading-relaxed`}>
+            {error || success}
+          </p>
         </div>
       )}
 
-      {/* Profile Content Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Identity Block */}
-        <div className="bg-cyber-black border border-cyber-red/30 p-5 relative overflow-hidden">
-          <h2 className="text-sm uppercase tracking-widest text-cyber-red flex items-center border-b border-cyber-red/20 pb-2 mb-4">
-            <UserIcon className="w-4 h-4 mr-2" /> Core_Identity
+      {/* Main Content: Tactical Dossier Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+        {/* Terminal Block 01: Core Verification */}
+        <div className="bg-cyber-black/80 border-2 border-cyber-red/20 hover:border-cyber-red/40 p-8 relative overflow-hidden transition-all group backdrop-blur-sm">
+          <div className="absolute top-0 right-0 p-3 opacity-20"><Zap className="w-5 h-5 text-cyber-neon" /></div>
+          <h2 className="text-xs uppercase tracking-[0.4em] font-black text-cyber-red flex items-center border-b border-cyber-red/10 pb-4 mb-8">
+            <UserIcon className="w-5 h-5 mr-4 text-cyber-neon" /> Identity_Verification_Module
           </h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="text-[10px] uppercase text-gray-500 tracking-widest">Username</label>
+
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase text-gray-600 tracking-[0.3em] font-black">Agent_Alias</label>
               {isEditing ? (
-                <input type="text" name="username" value={formData.username} onChange={handleInputChange} className="w-full bg-cyber-black border border-cyber-red/30 text-gray-300 p-2 text-xs focus:outline-none focus:border-cyber-red transition-colors mt-1" />
+                <input type="text" name="username" value={formData.username} onChange={handleInputChange} className="w-full bg-cyber-gray/10 border-l-2 border-cyber-red/40 text-gray-100 p-3 text-sm focus:outline-none focus:border-cyber-red focus:bg-cyber-red/5 transition-all uppercase tracking-widest" />
               ) : (
-                <p className="text-lg text-gray-200">{profile.username}</p>
+                <p className="text-xl text-gray-100 font-black tracking-tighter uppercase group-hover:text-cyber-neon transition-colors">@{profile.username}</p>
               )}
             </div>
 
-            <div>
-              <label className="text-[10px] uppercase text-gray-500 tracking-widest">Comm_Link (Email)</label>
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase text-gray-600 tracking-[0.3em] font-black">Comm_Stream (Email)</label>
               {isEditing ? (
-                <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-cyber-black border border-cyber-red/30 text-gray-300 p-2 text-xs focus:outline-none focus:border-cyber-red transition-colors mt-1" />
+                <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-cyber-gray/10 border-l-2 border-cyber-red/40 text-gray-100 p-3 text-sm focus:outline-none focus:border-cyber-red focus:bg-cyber-red/5 transition-all tracking-widest lowercase" />
               ) : (
-                <p className="text-sm text-gray-300 flex items-center"><Mail className="w-3 h-3 mr-2 text-cyber-red-dim" /> {profile.email}</p>
+                <p className="text-sm text-gray-300 font-bold flex items-center tracking-widest"><Mail className="w-4 h-4 mr-3 text-cyber-red" /> {profile.email}</p>
               )}
             </div>
 
-            <div>
-              <label className="text-[10px] uppercase text-gray-500 tracking-widest">Legal_Designation (Name)</label>
-              {isEditing ? (
-                <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full bg-cyber-black border border-cyber-red/30 text-gray-300 p-2 text-xs focus:outline-none focus:border-cyber-red transition-colors mt-1" placeholder="Enter full name" />
-              ) : (
-                <p className="text-sm text-gray-300">{profile.name || '-- UNREGISTERED --'}</p>
-              )}
-            </div>
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase text-gray-600 tracking-[0.3em] font-black">Gender_Signal</label>
+                {isEditing ? (
+                  <select name="gender" value={formData.gender} onChange={handleInputChange} className="w-full bg-cyber-gray/10 border-l-2 border-cyber-red/40 text-gray-100 p-3 text-sm focus:outline-none focus:border-cyber-red focus:bg-cyber-red/5 transition-all text-xs uppercase tracking-widest cursor-pointer">
+                    <option value="" className="bg-cyber-black">-- UNK --</option>
+                    <option value="M" className="bg-cyber-black">MALE</option>
+                    <option value="F" className="bg-cyber-black">FEMALE</option>
+                    <option value="X" className="bg-cyber-black">NON_BINARY</option>
+                  </select>
+                ) : (
+                  <p className="text-sm text-gray-100 font-black tracking-widest border-l-2 border-cyber-red/20 pl-3">{profile.gender || 'UNDEFINED'}</p>
+                )}
+              </div>
 
-            <div>
-              <label className="text-[10px] uppercase text-gray-500 tracking-widest">Gender_Marker</label>
-              {isEditing ? (
-                <select name="gender" value={formData.gender} onChange={handleInputChange} className="w-full bg-cyber-black border border-cyber-red/30 text-gray-300 p-2 text-xs focus:outline-none focus:border-cyber-red transition-colors mt-1">
-                  <option value="">-- UNKNOWN --</option>
-                  <option value="M">MALE</option>
-                  <option value="F">FEMALE</option>
-                  <option value="X">NON_BINARY</option>
-                </select>
-              ) : (
-                <p className="text-sm text-gray-300">{profile.gender || '--'}</p>
-              )}
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase text-gray-600 tracking-[0.3em] font-black">Network_Link</label>
+                <p className="text-sm text-cyber-neon font-bold tracking-widest uppercase flex items-center border-l-2 border-cyber-neon/20 pl-3">
+                  Active_Sync
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Location & Contact Block */}
-        <div className="bg-cyber-black border border-cyber-red/30 p-5 relative overflow-hidden">
-          <h2 className="text-sm uppercase tracking-widest text-cyber-red flex items-center border-b border-cyber-red/20 pb-2 mb-4">
-            <Globe className="w-4 h-4 mr-2" /> Telemetry_&_Location
+        {/* Terminal Block 02: Geo-Telemetry */}
+        <div className="bg-cyber-black/80 border-2 border-cyber-red/20 hover:border-cyber-red/40 p-8 relative overflow-hidden transition-all group backdrop-blur-sm">
+          <div className="absolute top-0 right-0 p-3 opacity-20"><Crosshair className="w-5 h-5 text-cyber-red" /></div>
+          <h2 className="text-xs uppercase tracking-[0.4em] font-black text-cyber-red flex items-center border-b border-cyber-red/10 pb-4 mb-8">
+            <Globe className="w-5 h-5 mr-4 text-cyber-neon" /> Spatial_Telemetry_Dossier
           </h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="text-[10px] uppercase text-gray-500 tracking-widest flex items-center">
-                <Phone className="w-3 h-3 mr-1" /> Encrypted_Channel (Phone)
-              </label>
+
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase text-gray-600 tracking-[0.3em] font-black">Encrypted_Voice_Line</label>
               {isEditing ? (
-                <input type="text" name="phone_number" value={formData.phone_number} onChange={handleInputChange} className="w-full bg-cyber-black border border-cyber-red/30 text-gray-300 p-2 text-xs focus:outline-none focus:border-cyber-red transition-colors mt-1" placeholder="+00 000 0000" />
+                <input type="text" name="phone_number" value={formData.phone_number} onChange={handleInputChange} className="w-full bg-cyber-gray/10 border-l-2 border-cyber-red/40 text-gray-100 p-3 text-sm focus:outline-none focus:border-cyber-red focus:bg-cyber-red/5 transition-all tracking-widest font-black" placeholder="+00 000 0000" />
               ) : (
-                <p className="text-sm text-gray-300">{profile.phone_number || '-- UNREGISTERED --'}</p>
+                <p className="text-lg text-gray-100 font-bold flex items-center"><Phone className="w-4 h-4 mr-3 text-cyber-red" /> {profile.phone_number || 'SIGNAL_LOST'}</p>
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-[10px] uppercase text-gray-500 tracking-widest">Base_City</label>
-                {isEditing ? (
-                  <input type="text" name="city" value={formData.city} onChange={handleInputChange} className="w-full bg-cyber-black border border-cyber-red/30 text-gray-300 p-2 text-xs focus:outline-none focus:border-cyber-red transition-colors mt-1" />
-                ) : (
-                  <p className="text-sm text-gray-300 flex items-center"><MapPin className="w-3 h-3 mr-2 text-cyber-red-dim" /> {profile.city || '--'}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="text-[10px] uppercase text-gray-500 tracking-widest">Country_Code</label>
-                {isEditing ? (
-                  <input type="text" name="country" value={formData.country} onChange={handleInputChange} className="w-full bg-cyber-black border border-cyber-red/30 text-gray-300 p-2 text-xs focus:outline-none focus:border-cyber-red transition-colors mt-1" />
-                ) : (
-                  <p className="text-sm text-gray-300">{profile.country || '--'}</p>
-                )}
-              </div>
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase text-gray-600 tracking-[0.3em] font-black">Base_Operational_Address</label>
+              {isEditing ? (
+                <input type="text" name="address" value={formData.address} onChange={handleInputChange} className="w-full bg-cyber-gray/10 border-l-2 border-cyber-red/40 text-gray-100 p-3 text-sm focus:outline-none focus:border-cyber-red focus:bg-cyber-red/5 transition-all uppercase tracking-widest" />
+              ) : (
+                <p className="text-sm text-gray-300 font-bold tracking-widest border-l-2 border-cyber-red/20 pl-4 bg-cyber-red/5 py-2">
+                  {profile.address || 'UNDECLARED_SAFEHOUSE'}
+                </p>
+              )}
             </div>
 
-            <div>
-              <label className="text-[10px] uppercase text-gray-500 tracking-widest">Safehouse_Coordinates (Address)</label>
-              {isEditing ? (
-                <input type="text" name="address" value={formData.address} onChange={handleInputChange} className="w-full bg-cyber-black border border-cyber-red/30 text-gray-300 p-2 text-xs focus:outline-none focus:border-cyber-red transition-colors mt-1" />
-              ) : (
-                <p className="text-sm text-gray-300">{profile.address || '-- UNREGISTERED --'}</p>
-              )}
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase text-gray-600 tracking-[0.3em] font-black">Sector (City)</label>
+                {isEditing ? (
+                  <input type="text" name="city" value={formData.city} onChange={handleInputChange} className="w-full bg-cyber-gray/10 border-l-2 border-cyber-red/40 text-gray-100 p-3 text-sm focus:outline-none focus:border-cyber-red focus:bg-cyber-red/5 transition-all uppercase tracking-widest" />
+                ) : (
+                  <p className="text-sm text-gray-100 font-black tracking-[0.2em] uppercase">{profile.city || 'NULL'}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase text-gray-600 tracking-[0.3em] font-black">Region (Country)</label>
+                {isEditing ? (
+                  <input type="text" name="country" value={formData.country} onChange={handleInputChange} className="w-full bg-cyber-gray/10 border-l-2 border-cyber-red/40 text-gray-100 p-3 text-sm focus:outline-none focus:border-cyber-red focus:bg-cyber-red/5 transition-all uppercase tracking-widest" />
+                ) : (
+                  <p className="text-sm text-gray-100 font-black tracking-[0.2em] uppercase">{profile.country || 'NULL'}</p>
+                )}
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
+      {/* Footer System Status */}
+      <div className="border-t border-cyber-red/10 pt-6 flex justify-between items-center opacity-30 text-[9px] font-black uppercase tracking-[0.5em]">
+        <span>Node: PROFILE_DOSSIER_v2.09</span>
+        <span>Encryption: AES_256_ACTIVE</span>
+        <span>Sync_Status: NOMINAL</span>
       </div>
     </div>
   );
 };
 
 export default UserProfile;
-

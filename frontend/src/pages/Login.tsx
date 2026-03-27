@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Terminal, ShieldAlert, Lock, User as UserIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const Login: React.FC = () => {
   const { login, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
-  
+
   // Form state
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -68,9 +68,17 @@ const Login: React.FC = () => {
 
       {/* Login Container */}
       <div className="relative z-10 w-full max-w-md bg-cyber-black border border-cyber-red/40 p-8 shadow-[0_0_15px_rgba(255,0,0,0.2)]">
-        
+
         {/* Header */}
         <div className="flex flex-col items-center mb-8 border-b border-cyber-red/30 pb-4">
+          {/* Added Cyber Icon as requested */}
+          <div className="mb-4">
+            <img
+              src="../../publics/cv_pothole_img.jpg"
+              alt="Cyber-Guard_Icon"
+              className="w-24 h-24 object-cover border border-cyber-red/50 shadow-neon-red"
+            />
+          </div>
           <ShieldAlert className="text-cyber-red w-12 h-12 mb-2 animate-pulse" />
           <h1 className="text-cyber-red text-2xl font-bold tracking-[0.2em] uppercase">
             Pothole_Guard
@@ -124,22 +132,24 @@ const Login: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full border border-cyber-red text-cyber-red uppercase tracking-[0.3em] font-bold p-4 mt-4 transition-all duration-300 hover:bg-cyber-red hover:text-black hover:shadow-[0_0_20px_rgba(255,0,0,0.5)] ${
-              isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className={`w-full border border-cyber-red text-cyber-red uppercase tracking-[0.3em] font-bold p-4 mt-4 transition-all duration-300 hover:bg-cyber-red hover:text-black hover:shadow-[0_0_20px_rgba(255,0,0,0.5)] ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
           >
             {isSubmitting ? 'Authenticating...' : 'Initialize_Session'}
           </button>
         </form>
 
         {/* Navigation Links */}
-        <div className="mt-8 pt-4 border-t border-cyber-red/20 flex flex-col space-y-2 text-center text-xs">
-          <a href="/forgot-password" className="text-gray-500 hover:text-cyber-red transition-colors cursor-pointer uppercase tracking-widest">
+        <div className="mt-8 pt-4 border-t border-cyber-red/20 flex flex-col space-y-4 text-center text-medium">
+          <Link to="/" className="text-cyber-red-dim hover:text-cyber-red transition-colors cursor-pointer uppercase tracking-[0.2em] font-black mb-2 animate-pulse">
+            &lt;&lt; RETURN HOME
+          </Link>
+          <Link to="/forgot-password" data-testid="forgot-password-link" className="text-gray-500 hover:text-cyber-red transition-colors cursor-pointer uppercase tracking-widest">
             &gt; Bypass_Security (Forgot Password?)
-          </a>
-          <a href="/register" className="text-gray-500 hover:text-cyber-red transition-colors cursor-pointer uppercase tracking-widest">
+          </Link>
+          <Link to="/register" data-testid="register-link" className="text-gray-500 hover:text-cyber-red transition-colors cursor-pointer uppercase tracking-widest">
             &gt; Request_Access (Register)
-          </a>
+          </Link>
         </div>
 
       </div>

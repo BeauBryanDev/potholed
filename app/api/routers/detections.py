@@ -263,10 +263,9 @@ def get_town_potholes_geojson(
     current_user: User = Depends(get_current_active_user)
 ):
     """
-    Exporta todos los baches de una ciudad específica en formato GeoJSON.
-    Ideal para integrar con Leaflet o Google Maps.
+    Explore all potholes in a town in geojson format
     """
-    # Buscamos todas las detecciones vinculadas a esa ciudad a través de las imágenes
+    
     query = db.query(Detection).join(Image).filter(
         Image.town_id == town_id,
         Detection.estimated_lat.isnot(None)
@@ -276,15 +275,14 @@ def get_town_potholes_geojson(
         query = query.filter(Image.user_id == current_user.id)
 
     detections = query.all()
-
-    # Construimos la estructura GeoJSON estándar
+    
     features = []
     for det in detections:
         feature = {
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [det.estimated_lon, det.estimated_lat] # GeoJSON usa [Long, Lat]
+                "coordinates": [det.estimated_lon, det.estimated_lat] # GeoJSON works with  [Long, Lat]
             },
             "properties": {
                 "detection_id": det.id,

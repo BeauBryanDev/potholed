@@ -34,46 +34,52 @@ export interface UserUpdate {
 
 const userService = {
 
-    /* Get Current User Profile */
-    /** Obtiene el perfil del usuario actual */
-    getMe: async (): Promise<UserResponse> => {
-        const response = await api.get<UserResponse>('/users/me');
-        return response.data;
+  /* Get Current User Profile */
+  /** Obtiene el perfil del usuario actual */
+  getMe: async (): Promise<UserResponse> => {
+    const response = await api.get<UserResponse>('/users/me');
+    return response.data;
   },
-    /* Full Update User Profile */
-    updateMe: async (data: UserUpdate): Promise<UserResponse> => {
+  /* Full Update User Profile */
+  updateMe: async (data: UserUpdate): Promise<UserResponse> => {
     const response = await api.put<UserResponse>('/users/me', data);
     return response.data;
   },
-    /* Partial Update User Profile */
-    patchMe: async (data: UserUpdate): Promise<UserResponse> => {
+  /* Partial Update User Profile */
+  patchMe: async (data: UserUpdate): Promise<UserResponse> => {
     const response = await api.patch<UserResponse>('/users/me', data);
     return response.data;
   },
 
   // Admin USer Endpoints 
 
-    /* Create a new User from Admin */
-    createByAdmin: async (data: UserUpdate & { username: string; email: string }): Promise<UserResponse> => {
-        const response = await api.post<UserResponse>('/users/', data);
-        return response.data;
-    },
-    /* Get all Users from Admin */
-    getAllByAdmin: async (): Promise<UserResponse[]> => {
-        const response = await api.get<UserResponse[]>('/users/');
-        return response.data;
-    },
-    /** Get a User from Admin */
-    getById: async (userId: number): Promise<UserResponse> => {
+  /* Create a new User from Admin */
+  createByAdmin: async (data: UserUpdate & { username: string; email: string }): Promise<UserResponse> => {
+    const response = await api.post<UserResponse>('/users/', data);
+    return response.data;
+  },
+  /* Get all Users from Admin */
+  getAllByAdmin: async (): Promise<UserResponse[]> => {
+    const response = await api.get<UserResponse[]>('/users/');
+    return response.data;
+  },
+  /** Get a User from Admin */
+  getById: async (userId: number): Promise<UserResponse> => {
     const response = await api.get<UserResponse>(`/users/${userId}`);
     return response.data;
   },
 
-    /** Delete a User from Admin */
-    deleteByAdmin: async (userId: number): Promise<{ message: string }> => {
-        const response = await api.delete(`/users/${userId}`);
-        return response.data;
-    }
+  /** Delete a User from Admin */
+  deleteByAdmin: async (userId: number): Promise<{ message: string }> => {
+    const response = await api.delete(`/users/${userId}`);
+    return response.data;
+  },
+
+  /** Update a User from Admin */
+  updateByAdmin: async (userId: number, data: UserUpdate & { is_active?: boolean; is_admin?: boolean }): Promise<UserResponse> => {
+    const response = await api.put<UserResponse>(`/users/${userId}`, data);
+    return response.data;
+  }
 
 };
 
