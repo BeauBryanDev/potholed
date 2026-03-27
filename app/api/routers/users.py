@@ -12,7 +12,9 @@ from app.services.user_service import (
     create_user,
     update_user,
     delete_user,
+    get_users,
 )
+
 
 
 router = APIRouter(
@@ -20,6 +22,30 @@ router = APIRouter(
     tags=["users"],
     responses={404: {"description": "Not found"}},
 )
+
+
+@router.get("/", response_model=List[UserAdminResponse])
+def list_users(
+    skip: int = 0,
+    limit: int = 100,
+    username: Optional[str] = None,
+    email: Optional[str] = None,
+    current_admin: User = Depends(get_current_admin_user),
+    db = Depends(get_db),
+):
+    """
+    List all users with optional filtering by username or email.
+    Only accessible by administrators.
+    """
+    if username:
+        user = get_user_by_username(db, username)
+        return [user] if user else []
+    if email:
+        user = get_user_by_email(db, email)
+        return [user] if user else []
+        
+    return get_users(db, skip=skip, limit=limit)
+
 
 
 @router.get("/me", response_model=UserResponse)
@@ -159,14 +185,14 @@ def deactivate_current_user(
     return {"message": "Account deactivated successfully. You can contact support to reactivate."}
 
 
-@router.get("/{username}", response_model=UserAdminResponse)
+@router.get("/username/{username}", response_model=UserAdminResponse)
 def get_user_by_username_admin(
     username: str,
     current_admin: User = Depends(get_current_admin_user),
     db = Depends(get_db),
 ) -> User:
     """
-    Get detailed information about a specific user.
+    Get detailed information about a specific user by username.
     
     Only accessible by administrators.
     """
@@ -174,7 +200,7 @@ def get_user_by_username_admin(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail=f"User with username '{username}' not found"
         )
     return user
 
@@ -219,14 +245,14 @@ def delete_user_admin(
     return {"message": f"User {user_id} permanently deleted"}
 
 
-@router.get("/{email}", response_model=UserAdminResponse)
+@router.get("/email/{email}", response_model=UserAdminResponse)
 def get_user_by_email_admin(
     email: str,
     current_admin: User = Depends(get_current_admin_user),
     db = Depends(get_db),
 ) -> User:
     """
-    Get detailed information about a specific user.
+    Get detailed information about a specific user by email.
     
     Only accessible by administrators.
     """
@@ -234,7 +260,7 @@ def get_user_by_email_admin(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail=f"User with email '{email}' not found"
         )
     return user
 

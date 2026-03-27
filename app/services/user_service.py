@@ -168,3 +168,20 @@ def delete_user(db: Session, user_id: int) -> bool:
     db.commit()
     
     return True
+
+
+def get_users(db: Session, skip: int = 0, limit: int = 100) -> list[User]:
+    """
+    Retrieve a list of users.
+
+    Args:
+        db (Session): Database session
+        skip (int): Number of records to skip
+        limit (int): Maximum number of records to return
+
+    Returns:
+        list[User]: List of user objects
+    """
+    result = db.execute(select(User).offset(skip).limit(limit))
+    return list(result.scalars().all())
+

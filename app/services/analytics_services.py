@@ -182,8 +182,8 @@ class AnalyticsService:
         }
         
     
-    
-    def get_user_activity(self, db: Session):
+    @staticmethod
+    def get_user_activity(db: Session):
         
         results = db.query(
             User.id.label("user_id"),

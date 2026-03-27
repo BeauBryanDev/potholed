@@ -43,14 +43,14 @@ async def get_dashboard_metrics(
     }
     
     
-@router.get("/dashboard/", response_model=dict[str, Any])
+@router.get("/summary", response_model=dict[str, Any])
 
 def get_dashboard_summary(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_active_user)
 ):
     """
-    Consolidado general para la vista principal del Dashboard.
+    General summary for the main dashboard view.
     """
     return {
         "overview": AnalyticsService.get_general_overview(db),
@@ -65,7 +65,7 @@ def get_critical_streets(
     current_user = Depends(get_current_active_user)
 ):
     """
-    Ranking de las calles con mayor conteo de baches (incluyendo su ciudad).
+    Top affected streets stats
     """
     return AnalyticsService.get_top_affected_streets(db, limit=limit)
 
@@ -75,7 +75,7 @@ def get_towns_impact(
     current_user = Depends(get_current_active_user)
 ):
     """
-    Distribución de baches por municipio/ciudad.
+    Towns distribution stats
     """
     return AnalyticsService.get_towns_distribution(db)
 
@@ -85,7 +85,7 @@ def get_ai_performance(
     current_user = Depends(get_current_active_user)
 ):
     """
-    Estadísticas de precisión y velocidad por versión del modelo (YOLOv8 ONNX).
+    Model performance stats
     """
     return AnalyticsService.get_model_performance(db)
 
@@ -95,7 +95,7 @@ def get_user_activity(
     current_user = Depends(get_current_active_user)
 ):
     """
-    Estadísticas de actividad de usuarios.
+    User activity stats
     """
     return AnalyticsService.get_user_activity(db)   
 
@@ -106,7 +106,7 @@ def get_recent_activity_stats(
     current_user = Depends(get_current_active_user)
 ):
     """
-    Estadísticas específicas de la última semana de detecciones.
+    Last week stats 
     """
     return AnalyticsService.get_last_week_potholes(db)
 

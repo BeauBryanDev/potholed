@@ -82,9 +82,9 @@ def draw_potholes_and_save(image: np.ndarray, detections: list) -> str:
 def draw_potholes_and_save2(image: np.ndarray, detections: list) -> str:
 
     output_img = image.copy()
-    overlay = image.copy()  # Capa para manejar las transparencias
+    overlay = image.copy()  
     
-    color_neon = (0, 0, 255)  # Rojo sólido (BGR)
+    color_neon = (0, 0, 255)  # solid red (BGR)
     
     for det in detections:
         x, y, w, h = det["box"]
